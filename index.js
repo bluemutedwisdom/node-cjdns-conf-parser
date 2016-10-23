@@ -36,7 +36,8 @@ var JsonLint = require("jsonlint");
             })
             .join('')
             .replace(/\s+/g, '')
-            .replace(/,\}$/g, '}');
+            .replace(/,\]/g, ']')
+            .replace(/,\}/g, '}');
 
         // return validated JSON or an error
         try {
