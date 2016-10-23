@@ -1,6 +1,6 @@
 {
   "name": "cjdns-conf-parser",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "parse a cjdns config",
   "main": "index.js",
   "bin": "index.js",
@@ -22,5 +22,8 @@
   "bugs": {
     "url": "https://github.com/fc00/cjdns-conf-parser/issues"
   },
-  "homepage": "https://github.com/fc00/cjdns-conf-parser#readme"
+  "homepage": "https://github.com/fc00/cjdns-conf-parser#readme",
+  "dependencies": {
+    "jsonlint": "^1.6.2"
+  }
 }
