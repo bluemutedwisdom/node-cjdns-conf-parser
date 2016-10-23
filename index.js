@@ -2,13 +2,32 @@
 
 var Fs = require("fs");
 var Path = require("path");
+var JsonLint = require("jsonlint");
 
 (function () {
+    // check whether something is an error
+    var isError = function (o) {
+        return Object.prototype.toString.call(o) === '[object Error]';
+    };
 
-    var read = function (path) {
+    // load a file
+    var loadFile = function (path) {
         var conf = Fs.readFileSync(Path.resolve(path), 'utf-8');
-        //console.log(conf);
+        return conf;
+    };
 
+    // strip comments from a string
+    var read = function (path) {
+        var conf;
+        try {
+            conf = loadFile(path);
+        } catch (err) {
+            return err;
+        }
+
+        if (typeof(conf) !== 'string') { throw new Error('expected a string'); }
+
+        // do your best to strip comments
         var stripped = conf
             .replace(/\/\*[\s\S]*?\*\//g, '')
             .split('\n')
@@ -19,15 +38,16 @@ var Path = require("path");
             .replace(/\s+/g, '')
             .replace(/,\}$/g, '}');
 
-        //console.log(stripped);
-
+        // return validated JSON or an error
         try {
-            return JSON.parse(stripped);
+            return JsonLint.parse(stripped);
         } catch (err) {
-            return err.message;
+            return err;
         }
     };
 
+
+    // return a module, if not called from the command line
     if (require.main !== module) {
         module.exports = {
             read: read
@@ -35,25 +55,26 @@ var Path = require("path");
         return;
     }
 
+    // otherwise expose a CLI
     var args = process.argv.slice(2);
 
+    // you need a path to work with
     if (!args.length) {
         console.error("Expected a path to a cjdroute.conf file");
         process.exit(1);
     }
 
-    //console.log(args[0]);
-
+    // read the conf
     var conf = read(args[0]);
 
-    if (typeof(conf) === 'string') {
-        //console.error(conf);
+    // was there an error?
+    if (isError(conf)) {
+        console.error(conf.message);
         process.exit(1);
     }
 
+    // if not, print the valid JSON, formatted in a nice way
     console.log(JSON.stringify(conf, null, 2));
+    // and exit
     process.exit(0);
-
-    console.log(stripped);
-    //console.log(JSON.stringify(JSON.parse(stripped), null, 2));
 }());
